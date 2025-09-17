@@ -32,6 +32,36 @@ contact_id,name,email,phone
 2,Jane Doe,jane@email.com,+1987654321
 ```
 
+## Usage Workflow
+
+1. **Upload Contacts**: Use the sidebar to upload your CSV file
+2. **Select Week**: Choose the week you want to manage
+3. **Add Cancellation**: 
+   - Select date, time, and original student
+   - Click "Add Cancellation & Notify Contacts"
+   - All contacts instantly receive email and SMS notifications
+4. **Fill Slots**:
+   - Member clicks a custom URL to fill a specific lesson
+   - Confirms they want the lesson at URL 
+   - Selected contact gets confirmation
+   - Other contacts get "filled" notification
+   - Lesson filled displayed or no longer available displayed
+
+## Notification Examples
+
+### Available Slot Notification
+**Email Subject**: 🤺 Fencing Lesson Available - 2024-01-15 at 15:30
+**SMS**: 🤺 Fencing lesson available 2024-01-15 at 15:30. First come, first served. Reply if interested!
+
+### Confirmation (Selected Contact)
+**Email Subject**: ✅ Fencing Lesson Confirmed - 2024-01-15 at 15:30
+**SMS**: ✅ Fencing lesson confirmed for 2024-01-15 at 15:30. Arrive 5 min early!
+
+### Filled Notification (Other Contacts)
+**Email Subject**: ❌ Fencing Lesson Filled - 2024-01-15 at 15:30  
+**SMS**: ❌ Fencing lesson 2024-01-15 at 15:30 has been filled. Thanks for your interest!
+
+
 ## Deployment Options
 
 ### Option 1: Streamlit Cloud (Done for testing)
@@ -113,34 +143,6 @@ contact_id,name,email,phone
    - Account SID and Auth Token from Console Dashboard
    - Phone number from Phone Numbers section
 
-## Usage Workflow
-
-1. **Upload Contacts**: Use the sidebar to upload your CSV file
-2. **Select Week**: Choose the week you want to manage
-3. **Add Cancellation**: 
-   - Select date, time, and original student
-   - Click "Add Cancellation & Notify Contacts"
-   - All contacts instantly receive email and SMS notifications
-4. **Fill Slots**:
-   - View available lessons
-   - Select which contact gets the slot
-   - Click "Fill Slot" 
-   - Selected contact gets confirmation
-   - Other contacts get "filled" notification
-
-## Notification Examples
-
-### Available Slot Notification
-**Email Subject**: 🤺 Fencing Lesson Available - 2024-01-15 at 15:30
-**SMS**: 🤺 Fencing lesson available 2024-01-15 at 15:30. First come, first served. Reply if interested!
-
-### Confirmation (Selected Contact)
-**Email Subject**: ✅ Fencing Lesson Confirmed - 2024-01-15 at 15:30
-**SMS**: ✅ Fencing lesson confirmed for 2024-01-15 at 15:30. Arrive 5 min early!
-
-### Filled Notification (Other Contacts)
-**Email Subject**: ❌ Fencing Lesson Filled - 2024-01-15 at 15:30  
-**SMS**: ❌ Fencing lesson 2024-01-15 at 15:30 has been filled. Thanks for your interest!
 
 ## Troubleshooting
 
