@@ -39,7 +39,7 @@ contact_id,name,email,phone
 3. **Add Cancellation**: 
    - Select date, time, coach and original student
    - Click "Add Cancellation & Notify Contacts"
-   - All contacts instantly receive email and SMS notifications
+   - All contacts receive email and SMS notifications
 4. **Fill Slots**:
    - Member clicks a custom URL to fill a specific lesson
    - Confirms they want the lesson at URL 
