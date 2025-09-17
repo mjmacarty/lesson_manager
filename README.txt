@@ -2,6 +2,10 @@
 
 ## Quick Start
 
+## URL
+https://lessnmanager.streamlit.app/
+
+
 This Streamlit app helps fencing coaches manage canceled lessons and automatically notify contacts via email and SMS.
 
 ## Features
@@ -9,17 +13,24 @@ This Streamlit app helps fencing coaches manage canceled lessons and automatical
 ✅ **Week-based scheduling** - Choose any week starting from Sunday
 ✅ **CSV contact upload** - Upload your contact list with names, emails, and phone numbers
 ✅ **Automatic notifications** - Instantly notify all contacts when a lesson is canceled
-✅ **First-come-first-served** - Coaches manually select which contact gets the slot
+✅ **First-come-first-served** - Members click a custom URL to claim lesson
 ✅ **Dual notifications** - Confirmation to selected contact, "filled" notification to others
 ✅ **Real-time updates** - See notification status and history
+
+## Testing
+1. Click browse to load contacts.csv
+2. There should already be a few sample lessons in canceled_lesson_log.csv  
+3. You can add a new canceled lesson and see a list of available lessons and the csv log
+4. To simulate filling a lesson you go to /Fill_Lesson?lesson_id=1&contact_id=3, for example
+5. You would adjust these parameters to reflect and available lesson_id & contact_id 1,2 or 3
 
 ## CSV Format
 
 Your contacts CSV should have these columns:
 ```csv
-name,email,phone
-John Smith,john@email.com,+1234567890
-Jane Doe,jane@email.com,+1987654321
+contact_id,name,email,phone
+1,John Smith,john@email.com,+1234567890
+2,Jane Doe,jane@email.com,+1987654321
 ```
 
 ## Deployment Options
