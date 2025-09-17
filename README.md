@@ -51,7 +51,7 @@ contact_id,name,email,phone
 
 ### Available Slot Notification
 **Email Subject**: 🤺 Fencing Lesson Available - 2024-01-15 at 15:30
-**SMS**: 🤺 Fencing lesson available 2024-01-15 at 15:30. First come, first served. Reply if interested!
+**SMS**: 🤺 Fencing lesson available 2024-01-15 at 15:30. First come, first served. [Click here to take this lesson](https::/some.com)!
 
 ### Confirmation (Selected Contact)
 **Email Subject**: ✅ Fencing Lesson Confirmed - 2024-01-15 at 15:30
