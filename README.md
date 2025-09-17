@@ -37,7 +37,7 @@ contact_id,name,email,phone
 1. **Upload Contacts**: Use the sidebar to upload your CSV file
 2. **Select Week**: Choose the week you want to manage
 3. **Add Cancellation**: 
-   - Select date, time, and original student
+   - Select date, time, coach and original student
    - Click "Add Cancellation & Notify Contacts"
    - All contacts instantly receive email and SMS notifications
 4. **Fill Slots**:
