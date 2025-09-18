@@ -425,6 +425,15 @@ def main():
                 st.write(f"**Filled By:** {lesson['filled_by']}")
                 st.write(f"**Filled At:** {lesson['filled_at']}")
 
+    # --- View the full lesson log in the UI ---
+    st.header("📖 Full Lessons Log")
+    log_data = load_lessons_from_csv()
+    if log_data:
+        df_log = pd.DataFrame(log_data)
+        st.dataframe(df_log, use_container_width=True)
+    else:
+        st.info("The lessons log is currently empty.")
+
     if st.session_state.notification_log:
         st.header("📧 Notification Log")
         with st.expander("View notification history"):
