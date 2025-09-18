@@ -1,4 +1,6 @@
 import streamlit as st
+import sys
+sys.path.append('..')  # Add parent directory to sys.path to import revisions.py
 import pandas as pd
 from datetime import datetime
 import os
