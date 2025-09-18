@@ -8,9 +8,9 @@ import os
 from datetime import datetime, timedelta
 import json
 import time
-import csv
 
-# --- Configuration (can be global as it doesn't rely on session state) ---
+# --- Configuration ---
+# Your secrets are now loaded from the secrets.toml file
 EMAIL_CONFIG = {
     'smtp_server': st.secrets.get('smtp_server', 'smtp.gmail.com'),
     'smtp_port': st.secrets.get('smtp_port', 587),
@@ -24,67 +24,29 @@ TWILIO_CONFIG = {
     'phone_number': st.secrets.get('twilio_phone', '')
 }
 
-# This URL needs to be your Streamlit app's public URL once deployed
-# For local testing, use a placeholder URL
-BASE_URL = "https://your-streamlit-app-url.streamlit.app" 
+BASE_URL = st.secrets.get('app_url', 'https://your-streamlit-app-url.streamlit.app') 
 
-
-# --- Helper functions ---
-def load_lessons_from_csv():
-    """Load all lessons from CSV on app start"""
-    csv_filename = "canceled_lessons_log.csv"
-    if not os.path.isfile(csv_filename):
-        return []
+# --- New Data Persistence Functions (using st.secrets) ---
+def load_lessons_from_secrets():
+    """Load lessons from the secrets.toml file."""
     try:
-        df = pd.read_csv(csv_filename)
-        # Explicitly set the format for correct parsing
-        df['date entered'] = pd.to_datetime(df['date entered'], format='%Y-%m-%d %H:%M', errors='coerce')
-        df['filled at'] = pd.to_datetime(df['filled at'], format='%Y-%m-%d %H:%M', errors='coerce')
-        lessons = df.to_dict('records')
-        # Clean up column names for internal use
-        for lesson in lessons:
-            lesson['id'] = lesson['lesson_id']
-            lesson['date'] = lesson['lesson date']
-            lesson['original_student'] = lesson['fencer']
-            if pd.notna(lesson['date entered']):
-                lesson['created_at'] = lesson['date entered'].strftime('%Y-%m-%d %H:%M')
-            if 'filled by' in lesson and pd.notna(lesson['filled by']):
-                lesson['filled_by'] = lesson['filled by']
-            if 'filled at' in lesson and pd.notna(lesson['filled at']):
-                lesson['filled_at'] = lesson['filled at'].strftime('%Y-%m-%d %H:%M')
+        lessons_json = st.secrets.get('lesson_data', '[]')
+        lessons = json.loads(lessons_json)
         return lessons
     except Exception as e:
-        st.error(f"Error loading canceled lessons from CSV: {str(e)}")
+        st.error(f"Error loading lessons from secrets: {str(e)}")
         return []
 
-def save_lessons_to_csv(lessons_list):
-    """Save the full list of lessons to CSV, overwriting the file"""
-    csv_filename = "canceled_lessons_log.csv"
-    
-    # Prepare data for CSV
-    rows = []
-    for lesson in lessons_list:
-        row = {
-            'lesson_id': lesson['id'],
-            'date entered': lesson['created_at'],
-            'lesson date': lesson['date'],
-            'time': lesson['time'],
-            'coach': lesson['coach'],
-            'fencer': lesson['original_student'],
-            'status': lesson['status'],
-            'filled by': lesson.get('filled_by', ''),
-            'filled at': lesson.get('filled_at', ''),
-        }
-        rows.append(row)
-    
-    df = pd.DataFrame(rows)
+def save_lessons_to_secrets(lessons_list):
+    """Save lessons to the secrets.toml file."""
     try:
-        df.to_csv(csv_filename, index=False)
-        return True, f"Lessons saved to {csv_filename}"
+        lessons_json = json.dumps(lessons_list)
+        st.secrets['lesson_data'] = lessons_json
+        return True, "Lessons saved to secrets"
     except Exception as e:
-        return False, f"CSV logging error: {str(e)}"
+        return False, f"Error saving lessons to secrets: {str(e)}"
 
-
+# --- Helper functions ---
 def get_week_dates(start_date=None):
     """Get week dates starting from Sunday"""
     if start_date:
@@ -156,21 +118,23 @@ def send_sms(to_phone, message):
 
 def get_csv_stats():
     """Calculate and return CSV log statistics based on new headers."""
-    csv_filename = "canceled_lessons_log.csv"
     stats = {
         'total_cancellations': 0,
         'total_filled': 0,
         'fill_rate': 0.0,
         'recent_activity': 0
     }
-    if os.path.isfile(csv_filename):
+    lessons = load_lessons_from_secrets() # Load data from secrets
+    if lessons:
         try:
-            df = pd.read_csv(csv_filename)
+            df = pd.DataFrame(lessons)
             stats['total_cancellations'] = len(df)
             stats['total_filled'] = len(df[df['status'] == 'filled'])
             if stats['total_cancellations'] > 0:
                 stats['fill_rate'] = round((stats['total_filled'] / stats['total_cancellations']) * 100, 2)
             seven_days_ago = datetime.now() - timedelta(days=7)
+            
+            # Use 'date entered' column from the DataFrame for date calculation
             df['date entered'] = pd.to_datetime(df['date entered'])
             stats['recent_activity'] = len(df[df['date entered'] >= seven_days_ago])
         except Exception as e:
@@ -277,7 +241,7 @@ def main():
         initial_sidebar_state="expanded"
     )
     if 'canceled_lessons' not in st.session_state:
-        st.session_state.canceled_lessons = load_lessons_from_csv()
+        st.session_state.canceled_lessons = load_lessons_from_secrets()
     if 'contacts_db' not in st.session_state:
         st.session_state.contacts_db = []
     if 'notification_log' not in st.session_state:
@@ -305,21 +269,32 @@ def main():
         st.write(f"📧 Email: {'✅ Configured' if email_configured else '❌ Not configured'}")
         st.write(f"📱 SMS: {'✅ Configured' if sms_configured else '❌ Not configured'}")
         st.write(f"👥 Contacts: {len(st.session_state.contacts_db)} loaded")
-        st.subheader("📊 CSV Log Statistics")
+        st.subheader("📊 Lessons Log Statistics")
         csv_stats = get_csv_stats()
         st.write(f"📝 Total Cancellations: {csv_stats['total_cancellations']}")
         st.write(f"✅ Total Filled: {csv_stats['total_filled']}")
         st.write(f"📈 Fill Rate: {csv_stats['fill_rate']}%")
         st.write(f"🕐 Recent Activity (7 days): {csv_stats['recent_activity']}")
-        csv_filename = "canceled_lessons_log.csv"
-        if os.path.isfile(csv_filename):
-            with open(csv_filename, 'rb') as file:
-                st.download_button(
-                    label="📥 Download CSV Log",
-                    data=file.read(),
-                    file_name="canceled_lessons_log.csv",
-                    mime="text/csv"
-                )
+
+        # --- NEW: Download button for secrets data ---
+        if csv_stats['total_cancellations'] > 0:
+            lessons = load_lessons_from_secrets()
+            df = pd.DataFrame(lessons)
+            csv_data = df.to_csv(index=False)
+            
+            st.download_button(
+                label="📥 Download Lessons Log",
+                data=csv_data,
+                file_name="fencing_lessons_log.csv",
+                mime="text/csv"
+            )
+
+        st.subheader("🛠️ Developer Tools")
+        if st.button("Reload Lessons from Secrets"):
+            st.session_state.canceled_lessons = []
+            st.session_state.canceled_lessons = load_lessons_from_secrets()
+            st.success("Lessons reloaded from secrets!")
+            st.rerun()
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
@@ -376,11 +351,11 @@ def main():
                     'created_at': datetime.now().strftime('%Y-%m-%d %H:%M')
                 }
                 st.session_state.canceled_lessons.append(cancellation)
-                csv_success, csv_msg = save_lessons_to_csv(st.session_state.canceled_lessons)
+                csv_success, csv_msg = save_lessons_to_secrets(st.session_state.canceled_lessons)
                 if csv_success:
-                    log_notification(f"Cancellation logged to CSV: {csv_msg}")
+                    log_notification(f"Cancellation logged to secrets: {csv_msg}")
                 else:
-                    st.warning(f"CSV logging failed: {csv_msg}")
+                    st.warning(f"Logging failed: {csv_msg}")
                 if st.session_state.contacts_db:
                     with st.spinner("Sending notifications..."):
                         results = notify_available_slot(cancellation)
@@ -389,7 +364,7 @@ def main():
                         for result in results:
                             st.write(f"• {result}")
                         if csv_success:
-                            st.write(f"• CSV: {csv_msg}")
+                            st.write(f"• Secrets: {csv_msg}")
                 else:
                     st.warning("⚠️ Cancellation added but no contacts loaded for notifications")
                 st.rerun()
@@ -417,16 +392,6 @@ def main():
                 st.write(f"**Original Student:** {lesson['original_student']}")
                 st.write(f"**Filled By:** {lesson['filled_by']}")
                 st.write(f"**Filled At:** {lesson['filled_at']}")
-
-    if os.path.isfile("canceled_lessons_log.csv"):
-        st.header("📋 CSV Activity Log")
-        with st.expander("View recent CSV log entries"):
-            try:
-                df = pd.read_csv("canceled_lessons_log.csv")
-                recent_df = df.tail(20).iloc[::-1]
-                st.dataframe(recent_df, use_container_width=True)
-            except Exception as e:
-                st.error(f"Error reading CSV log: {str(e)}")
 
     if st.session_state.notification_log:
         st.header("📧 Notification Log")

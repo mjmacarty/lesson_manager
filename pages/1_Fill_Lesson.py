@@ -2,12 +2,11 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import json
 
 # To share functions across pages, you can import from the parent directory
-# This assumes your project structure is set up correctly.
-# In a real app, you might put these in a separate 'utils.py' file.
 try:
-    from revisions import save_lessons_to_csv, get_week_dates, send_email, send_sms, log_notification, notify_lesson_filled, EMAIL_CONFIG, TWILIO_CONFIG, load_lessons_from_csv
+    from revisions import save_lessons_to_secrets, get_week_dates, send_email, send_sms, log_notification, notify_lesson_filled, EMAIL_CONFIG, TWILIO_CONFIG, load_lessons_from_secrets
 except ImportError:
     st.error("Could not load functions from revisions.py. Please check your project structure.")
     st.stop()
@@ -19,11 +18,10 @@ def fill_lesson_page():
         page_icon="✅"
     )
 
-    # --- NEW: Initialize session state variables needed for this page ---
+    # --- Initialize session state variables needed for this page ---
     if 'notification_log' not in st.session_state:
         st.session_state.notification_log = []
-    # --- END NEW ---
-
+    
     st.title("✅ Fencing Lesson Availability")
 
     # Get lesson_id and contact_id from the URL parameters
@@ -32,7 +30,7 @@ def fill_lesson_page():
     contact_id = params.get('contact_id')
 
     # Load data
-    lessons = st.session_state.get('canceled_lessons', load_lessons_from_csv())
+    lessons = st.session_state.get('canceled_lessons', load_lessons_from_secrets())
     contacts = st.session_state.get('contacts_db')
     
     if not contacts:
@@ -70,8 +68,8 @@ def fill_lesson_page():
                 lesson_to_fill['filled_by'] = selected_contact['name']
                 lesson_to_fill['filled_at'] = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-                # Save the entire updated list to the CSV
-                csv_success, csv_msg = save_lessons_to_csv(lessons)
+                # Save the entire updated list to the secrets
+                csv_success, csv_msg = save_lessons_to_secrets(lessons)
                 
                 # Send notifications
                 remaining_contacts = [c for c in contacts if str(c.get('contact_id')) != contact_id]
@@ -83,7 +81,7 @@ def fill_lesson_page():
                 else:
                     st.error("There was an error updating the lesson log.")
                 
-                st.button("Close") # Give the user a clear action to close the window
+                st.button("Close")
     
     else:
         # --- If no specific lesson is in the URL, show all available lessons ---
