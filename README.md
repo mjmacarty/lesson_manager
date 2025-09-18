@@ -17,11 +17,12 @@ This Streamlit app helps fencing coaches manage canceled lessons and automatical
 ✅ **Real-time updates** - See notification status and history
 
 ## Testing
-1. Click browse to load contacts.csv
-2. There should already be a few sample lessons in canceled_lesson_log.csv  
-3. You can add a new canceled lesson and see a list of available lessons and the csv log
-4. To simulate filling a lesson you go to https://lessnmanager.streamlit.app/Fill_Lesson?lesson_id=1&contact_id=3, for example
-5. You would adjust these parameters to reflect and available lesson_id & contact_id
+1. Download contacts.csv from github (this is a temporary solution for contacts)
+2. Click browse to load contacts.csv
+3. There should already be a few sample lessons in canceled_lesson_log.csv  
+4. You can add a new canceled lesson and see a list of available lessons and the csv log
+5. To simulate filling a lesson you go to https://lessnmanager.streamlit.app/Fill_Lesson?lesson_id=1&contact_id=3, for example
+6. You would adjust these parameters to reflect and available lesson_id & contact_id
 
 ## CSV Format
 
