@@ -1,14 +1,16 @@
 import streamlit as st
-import sys
-sys.path.append('..')  # Add parent directory to sys.path to import revisions.py
 import pandas as pd
 from datetime import datetime
 import os
-import json
+import sys
 
-# To share functions across pages, you can import from the parent directory
+# Add parent directory to system path for robust imports
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+# Import helper functions from revisions.py
 try:
-    from revisions import save_lessons_to_secrets, get_week_dates, send_email, send_sms, log_notification, notify_lesson_filled, EMAIL_CONFIG, TWILIO_CONFIG, load_lessons_from_secrets
+    from revisions import save_lessons_to_csv, get_week_dates, send_email, send_sms, log_notification, notify_lesson_filled, EMAIL_CONFIG, TWILIO_CONFIG, load_lessons_from_csv
 except ImportError:
     st.error("Could not load functions from revisions.py. Please check your project structure.")
     st.stop()
@@ -32,7 +34,7 @@ def fill_lesson_page():
     contact_id = params.get('contact_id')
 
     # Load data
-    lessons = st.session_state.get('canceled_lessons', load_lessons_from_secrets())
+    lessons = st.session_state.get('canceled_lessons', load_lessons_from_csv())
     contacts = st.session_state.get('contacts_db')
     
     if not contacts:
@@ -70,8 +72,8 @@ def fill_lesson_page():
                 lesson_to_fill['filled_by'] = selected_contact['name']
                 lesson_to_fill['filled_at'] = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-                # Save the entire updated list to the secrets
-                csv_success, csv_msg = save_lessons_to_secrets(lessons)
+                # Save the entire updated list to the CSV
+                csv_success, csv_msg = save_lessons_to_csv(lessons)
                 
                 # Send notifications
                 remaining_contacts = [c for c in contacts if str(c.get('contact_id')) != contact_id]
