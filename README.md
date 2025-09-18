@@ -5,7 +5,7 @@
 https://lessnmanager.streamlit.app/
 
 
-This Streamlit app helps fencing coaches manage canceled lessons and automatically notify contacts via email and SMS.
+This Streamlit app helps fencing coaches manage canceled lessons and automatically notify contacts via email and SMS. Note this is for demonstration only. Still needed: integration with messaging, data persistence for contacts and canceled lessons. Simplest solution for this will be google sheets which will allow for easy management of contacts and analysis of canceled lessons. App works as expected but new lessons added don't currently persist beyond the user session.
 
 ## Features
 
