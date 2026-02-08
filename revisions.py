@@ -36,7 +36,10 @@ def load_lessons_from_csv():
     try:
         df = pd.read_csv(csv_filename)
         # Handle datetime conversion to avoid future errors
-        df['date entered'] = pd.to_datetime(df['date entered'])
+        try:
+            df['date entered'] = pd.to_datetime(df['date entered'], format='mixed')
+        except Exception:
+            df['date entered'] = pd.to_datetime(df['date entered'])
         # Convert DataFrame back to a list of dictionaries
         lessons = df.to_dict('records')
         # Rename keys to be consistent with the app's internal format
@@ -170,7 +173,10 @@ def get_csv_stats():
                 stats['fill_rate'] = round((stats['total_filled'] / stats['total_cancellations']) * 100, 2)
             seven_days_ago = datetime.now() - timedelta(days=7)
             
-            df['date entered'] = pd.to_datetime(df['date entered'])
+            try:
+                df['date entered'] = pd.to_datetime(df['date entered'], format='mixed')
+            except Exception:
+                df['date entered'] = pd.to_datetime(df['date entered'])
             stats['recent_activity'] = len(df[df['date entered'] >= seven_days_ago])
         except pd.errors.EmptyDataError:
             pass
